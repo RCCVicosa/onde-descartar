@@ -185,3 +185,184 @@
   route(initial || 'inicio',{focus:false});
   loadData();
 })();
+
+
+/* ===== Acessibilidade 1.0 — WCAG + VLibras ===== */
+(() => {
+  const announce = (message) => {
+    let live = document.getElementById('a11y-status');
+    if (!live) {
+      live = document.createElement('div');
+      live.id = 'a11y-status';
+      live.className = 'sr-only';
+      live.setAttribute('role', 'status');
+      live.setAttribute('aria-live', 'polite');
+      live.setAttribute('aria-atomic', 'true');
+      document.body.appendChild(live);
+    }
+    live.textContent = '';
+    window.setTimeout(() => { live.textContent = message; }, 40);
+  };
+
+  // Nomes acessíveis para controles principais.
+  const menu = document.getElementById('menuToggle');
+  const search = document.getElementById('globalSearchBtn');
+  const accToggle = document.getElementById('accessibilityToggle');
+  const toast = document.getElementById('toast');
+  if (menu && !menu.getAttribute('aria-label')) menu.setAttribute('aria-label', 'Abrir menu de navegação');
+  if (search && !search.getAttribute('aria-label')) search.setAttribute('aria-label', 'Pesquisar resíduos');
+  if (accToggle && !accToggle.getAttribute('aria-label')) accToggle.setAttribute('aria-label', 'Abrir recursos de acessibilidade');
+  if (toast) {
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    toast.setAttribute('aria-atomic', 'true');
+  }
+
+  // Landmarks e identificação das páginas para tecnologias assistivas.
+  const app = document.getElementById('app');
+  if (app && app.tagName.toLowerCase() !== 'main') app.setAttribute('role', 'main');
+  document.querySelectorAll('.page').forEach((page, index) => {
+    const heading = page.querySelector('h1, h2');
+    if (heading) {
+      if (!heading.id) heading.id = 'page-heading-' + (index + 1);
+      page.setAttribute('role', 'region');
+      page.setAttribute('aria-labelledby', heading.id);
+    }
+  });
+
+  // Ícones ilustrativos acompanhados de texto não devem ser lidos duas vezes.
+  document.querySelectorAll(
+    '.nav-icon-img, .top-icon-img, .hero-action-icon img, .feature-icon img, .audience-grid img, .search-input-icon'
+  ).forEach(img => {
+    if (!img.hasAttribute('alt')) img.setAttribute('alt', '');
+    img.setAttribute('aria-hidden', 'true');
+  });
+
+  // Qualquer imagem restante recebe um alt seguro caso esteja sem atributo.
+  document.querySelectorAll('img:not([alt])').forEach(img => {
+    const label = img.getAttribute('title') || '';
+    img.setAttribute('alt', label);
+  });
+
+  // Garante títulos/nomes acessíveis nos cards gerados dinamicamente.
+  const observer = new MutationObserver(() => {
+    document.querySelectorAll('button:not([aria-label])').forEach(btn => {
+      const text = btn.textContent.replace(/\s+/g, ' ').trim();
+      if (text) btn.setAttribute('aria-label', text);
+    });
+  });
+  observer.observe(document.body, {childList:true, subtree:true});
+
+  // Integração oficial do VLibras Widget 7.
+  function loadVLibras() {
+    if (document.getElementById('vlibras-plugin-script')) return;
+    const script = document.createElement('script');
+    script.id = 'vlibras-plugin-script';
+    script.src = 'https://vlibras.gov.br/app/vlibras-plugin.js';
+    script.defer = true;
+    script.onload = () => announce('VLibras carregado. O botão de Libras está disponível na página.');
+    script.onerror = () => announce('Não foi possível carregar o VLibras neste momento.');
+    document.body.appendChild(script);
+  }
+  loadVLibras();
+
+  // Acrescenta a opção Libras ao painel já existente, se houver.
+  const panel = document.getElementById('accessibilityPanel');
+  if (panel && !panel.querySelector('[data-access="libras"]')) {
+    const librasButton = document.createElement('button');
+    librasButton.type = 'button';
+    librasButton.dataset.access = 'libras';
+    librasButton.innerHTML = '<span class="acc-icon" aria-hidden="true">LIB</span><span>Libras (VLibras)</span>';
+    librasButton.addEventListener('click', () => {
+      const btn = window.VLibrasWidget?.initBtn;
+      if (btn) {
+        btn.click();
+        announce('VLibras aberto.');
+      } else {
+        loadVLibras();
+        announce('VLibras está sendo carregado. Use o botão de Libras que aparecerá na página.');
+      }
+    });
+    panel.appendChild(librasButton);
+  }
+
+  // Se o HTML não trouxer o menu de acessibilidade, cria um controle flutuante de contingência.
+  if (!accToggle || !panel) {
+    const wrap = document.createElement('div');
+    wrap.className = 'a11y-fallback';
+    wrap.innerHTML = `
+      <button type="button" class="a11y-fallback-toggle" aria-expanded="false" aria-controls="a11yFallbackPanel">
+        <span aria-hidden="true">♿</span><span>Acessibilidade</span>
+      </button>
+      <div id="a11yFallbackPanel" class="a11y-fallback-panel" hidden>
+        <button type="button" data-fallback-action="font-minus">A− <span>Diminuir fonte</span></button>
+        <button type="button" data-fallback-action="font-plus">A+ <span>Aumentar fonte</span></button>
+        <button type="button" data-fallback-action="contrast">◐ <span>Alto contraste</span></button>
+        <button type="button" data-fallback-action="speak">🔊 <span>Ouvir página</span></button>
+        <button type="button" data-fallback-action="stop">■ <span>Parar leitura</span></button>
+        <button type="button" data-fallback-action="libras">LIB <span>Libras (VLibras)</span></button>
+      </div>`;
+    document.body.appendChild(wrap);
+    const toggle = wrap.querySelector('.a11y-fallback-toggle');
+    const fallbackPanel = wrap.querySelector('.a11y-fallback-panel');
+    toggle.addEventListener('click', () => {
+      const open = fallbackPanel.hasAttribute('hidden');
+      fallbackPanel.toggleAttribute('hidden', !open);
+      toggle.setAttribute('aria-expanded', String(open));
+    });
+    wrap.querySelectorAll('[data-fallback-action]').forEach(btn => btn.addEventListener('click', () => {
+      const action = btn.dataset.fallbackAction;
+      let scale = Number(localStorage.getItem('rcc-font-scale') || '1');
+      if (action === 'font-plus') {
+        scale = Math.min(1.35, +(scale + .08).toFixed(2));
+        document.documentElement.style.setProperty('--font-scale', scale);
+        localStorage.setItem('rcc-font-scale', scale);
+        announce('Tamanho da fonte aumentado.');
+      }
+      if (action === 'font-minus') {
+        scale = Math.max(.9, +(scale - .08).toFixed(2));
+        document.documentElement.style.setProperty('--font-scale', scale);
+        localStorage.setItem('rcc-font-scale', scale);
+        announce('Tamanho da fonte reduzido.');
+      }
+      if (action === 'contrast') {
+        document.body.classList.toggle('high-contrast');
+        localStorage.setItem('rcc-contrast', document.body.classList.contains('high-contrast') ? '1' : '0');
+        announce('Alto contraste alternado.');
+      }
+      if (action === 'speak') {
+        const active = document.querySelector('.page.active');
+        const text = active?.innerText?.replace(/\s+/g, ' ').trim();
+        if ('speechSynthesis' in window && text) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'pt-BR';
+          utterance.rate = .95;
+          window.speechSynthesis.speak(utterance);
+          announce('Leitura em voz alta iniciada.');
+        } else announce('Leitura em voz alta indisponível neste navegador.');
+      }
+      if (action === 'stop') {
+        window.speechSynthesis?.cancel();
+        announce('Leitura em voz alta interrompida.');
+      }
+      if (action === 'libras') {
+        const vlBtn = window.VLibrasWidget?.initBtn;
+        if (vlBtn) vlBtn.click(); else loadVLibras();
+      }
+    }));
+  }
+
+  // Atalho Alt+A abre o painel de acessibilidade sem conflitar com a navegação por Tab.
+  document.addEventListener('keydown', (event) => {
+    if (event.altKey && event.key.toLowerCase() === 'a') {
+      event.preventDefault();
+      const toggle = document.getElementById('accessibilityToggle') || document.querySelector('.a11y-fallback-toggle');
+      toggle?.click();
+      toggle?.focus();
+      announce('Menu de acessibilidade aberto.');
+    }
+  });
+
+  announce('Recursos de acessibilidade carregados. Atalho Alt mais A abre o menu de acessibilidade.');
+})();
