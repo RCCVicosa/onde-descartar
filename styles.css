@@ -203,3 +203,78 @@ body.high-contrast .home-hero{background-image:none;background:#fff}
   .project-card,.audience-card{padding:22px 18px;border-radius:16px}
   .audience-grid{grid-template-columns:1fr}
 }
+
+
+/* ===== Acessibilidade 1.0 — WCAG + VLibras ===== */
+.sr-only{
+  position:absolute!important;
+  width:1px!important;height:1px!important;
+  padding:0!important;margin:-1px!important;
+  overflow:hidden!important;clip:rect(0,0,0,0)!important;
+  white-space:nowrap!important;border:0!important;
+}
+:root{
+  --vlibras-btn-focus-visible-outline:3px solid #111;
+  --vlibras-btn-focus-visible-shadow:0 0 0 4px #f2c27b;
+  --vlibras-btn-hover-filter:brightness(1.08);
+}
+.a11y-fallback{
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  z-index:3500;
+  font-size:1rem;
+}
+.a11y-fallback-toggle{
+  border:0;
+  border-radius:999px;
+  min-height:48px;
+  padding:0 18px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  background:var(--green-900);
+  color:#fff;
+  font-weight:800;
+  box-shadow:0 10px 30px rgba(15,74,45,.22);
+}
+.a11y-fallback-panel{
+  position:absolute;
+  right:0;
+  bottom:58px;
+  width:250px;
+  padding:10px;
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:16px;
+  box-shadow:0 20px 55px rgba(20,45,30,.2);
+}
+.a11y-fallback-panel button{
+  width:100%;
+  border:0;
+  border-radius:10px;
+  padding:10px 12px;
+  background:transparent;
+  color:var(--ink);
+  display:grid;
+  grid-template-columns:42px 1fr;
+  align-items:center;
+  gap:10px;
+  text-align:left;
+}
+.a11y-fallback-panel button:hover,
+.a11y-fallback-panel button:focus-visible{background:var(--green-100)}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+    scroll-behavior:auto!important;
+  }
+}
+@media(max-width:580px){
+  .a11y-fallback{right:12px;bottom:12px}
+  .a11y-fallback-panel{position:fixed;left:12px;right:12px;bottom:72px;width:auto}
+  .a11y-fallback-toggle span:last-child{display:none}
+}
