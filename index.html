@@ -8019,5 +8019,42 @@ window.addEventListener("DOMContentLoaded",render);
   announce('Recursos de acessibilidade disponíveis. Use Alt mais A para abrir o menu.');
 })();
 </script>
+<script src="analytics-config.js"></script>
+<script id="rcc-analytics-integration">
+(function(){
+  // O identificador do site Umami é público. Nunca inserir chaves de API.
+  const cfg=window.RCC_ANALYTICS||{};
+  const websiteId=String(cfg.websiteId||'').trim();
+  if(/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(websiteId)){
+    const tracker=document.createElement('script');
+    tracker.defer=true;
+    tracker.src=cfg.trackerScript||'https://cloud.umami.is/script.js';
+    tracker.dataset.websiteId=websiteId;
+    document.head.appendChild(tracker);
+  }
+  // Entrada discreta nas versões desktop e móvel, sem modificar as outras rotas.
+  const desktop=document.querySelector('.main-nav');
+  if(desktop && !desktop.querySelector('[data-analytics-link]')){
+    const item=document.createElement('span');
+    item.className='nav-item';
+    const a=document.createElement('a');
+    a.href='estatisticas/';
+    a.textContent='Estatísticas';
+    a.dataset.analyticsLink='';
+    a.title='Consulte os dados públicos de uso da ferramenta';
+    item.appendChild(a);
+    desktop.appendChild(item);
+  }
+  const mobile=document.querySelector('#mobileMenu nav');
+  if(mobile && !mobile.querySelector('[data-analytics-link]')){
+    const a=document.createElement('a');
+    a.href='estatisticas/';
+    a.textContent='Estatísticas';
+    a.dataset.analyticsLink='';
+    a.setAttribute('data-mobile-link','');
+    mobile.appendChild(a);
+  }
+})();
+</script>
 </body>
 </html>
