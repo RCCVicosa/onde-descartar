@@ -3128,6 +3128,24 @@ h1, .section-heading, .path-card h2, .home-actions-heading,
     #a11yPanel{position:fixed;left:12px;right:12px;bottom:72px;width:auto}
   }
 </style>
+  <style id="umami-statistics-styles">
+
+/* Painel público de estatísticas — integração Umami */
+.statistics-intro h1{max-width:none}
+.statistics-info{margin:30px 0;padding:20px 24px;background:var(--superficie);border:1px solid var(--linha);border-radius:var(--raio-md);color:var(--texto-2)}
+.statistics-info p{margin:0 0 10px}
+.statistics-info p:last-child{margin-bottom:0}
+.statistics-panel{margin-top:28px;border:1px solid var(--linha);border-radius:var(--raio-md);overflow:hidden;background:var(--superficie)}
+.statistics-panel-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:20px 24px;border-bottom:1px solid var(--linha)}
+.statistics-panel-head h2{margin:0;font-size:1.4rem;font-family:var(--fonte-titulo)}
+.statistics-external-link{font-size:.9rem;font-weight:600}
+.statistics-frame{display:block;width:100%;height:980px;border:0;background:#fff}
+.statistics-help{margin:0;padding:14px 24px;color:var(--texto-2);font-size:.85rem;border-top:1px solid var(--linha)}
+@media(max-width:760px){.statistics-panel-head{padding:16px}.statistics-frame{height:1150px}.statistics-help{padding:12px 16px}}
+
+  </style>
+  <!-- Umami: estatísticas agregadas de acesso (início do monitoramento após publicação). -->
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="082543f0-a04f-4853-b918-2aaf28556c07"></script>
 </head>
 <body>
   <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
@@ -3171,6 +3189,10 @@ h1, .section-heading, .path-card h2, .home-actions-heading,
           <a href="#/coprinho" data-nav="coprinho" aria-describedby="nav-tip-coprinho">Coprinho</a>
           <span class="nav-tooltip" role="tooltip" id="nav-tip-coprinho">Conheça o mascote e a ideia que liga o besouro ao projeto.</span>
         </span>
+        <span class="nav-item">
+          <a href="#/estatisticas" data-nav="estatisticas" aria-describedby="nav-tip-estatisticas">Estatísticas</a>
+          <span class="nav-tooltip" role="tooltip" id="nav-tip-estatisticas">Acompanhe os acessos e as páginas mais consultadas.</span>
+        </span>
       </nav>
 
       <button class="menu-button" id="menuButton" type="button"
@@ -3194,6 +3216,7 @@ h1, .section-heading, .path-card h2, .home-actions-heading,
       <a href="#/sobre" data-nav="sobre" data-mobile-link>Sobre</a>
       <a href="#/referencias" data-nav="referencias" data-mobile-link>Referências</a>
       <a href="#/coprinho" data-nav="coprinho" data-mobile-link>Conheça o Coprinho</a>
+      <a href="#/estatisticas" data-nav="estatisticas" data-mobile-link>Estatísticas</a>
     </nav>
   </div>
 
@@ -3211,6 +3234,7 @@ h1, .section-heading, .path-card h2, .home-actions-heading,
       <nav class="footer-links" aria-label="Links complementares">
         <a href="#/como-usar">Como usar</a>
         <a href="#/referencias">Referências</a>
+        <a href="#/estatisticas">Estatísticas de acesso</a>
         <a href="#/coprinho">Conheça o Coprinho</a>
         <a href="#/por-que-vicosa">Por que Viçosa?</a>
         <a href="#/por-que-vicosa">Por que Viçosa?</a>
@@ -6220,6 +6244,7 @@ const routes = {
   "/entenda": { title:"Entenda os resíduos", kicker:"Conteúdo educativo", lead:"Página para explicar classes e termos que aparecem nas fichas." },
   "/sobre": { title:"Sobre o Onde Descartar?", kicker:"Sobre", lead:"Aqui ficam o projeto acadêmico, a equipe, a aplicação-piloto e o contexto da ferramenta." },
   "/referencias": { title:"De onde vêm as informações?", kicker:"Referências", lead:"Página de consulta às fontes técnicas, legais, institucionais e do projeto." },
+  "/estatisticas": { title:"Estatísticas de acesso", kicker:"Transparência", lead:"Acompanhe a utilização pública da ferramenta." },
   "/coprinho": { title:"Conheça o Coprinho", kicker:"Mascote", lead:"Página reservada para o personagem. A arte final será desenvolvida depois." },
   "/por-que-vicosa": { title:"Por que Viçosa?", kicker:"Contexto local", lead:"Página reservada para explicar por que a ferramenta começa por Viçosa, a relação com a Univiçosa e as lacunas locais identificadas durante a pesquisa." }
 };
@@ -6271,6 +6296,7 @@ function activeKey(path){
   if (path.startsWith("/como-usar")) return "como-usar";
   if (path.startsWith("/referencias")) return "referencias";
   if (path.startsWith("/coprinho")) return "coprinho";
+  if (path.startsWith("/estatisticas")) return "estatisticas";
   return "";
 }
 
@@ -6492,6 +6518,9 @@ function render(){
     pageRoot.className = "shell";
     pageRoot.innerHTML = referencesTemplate();
     initReferencesPage();
+  } else if (path === "/estatisticas"){
+    pageRoot.className = "shell page";
+    pageRoot.innerHTML = statisticsTemplate();
   } else if (path === "/coprinho"){
     pageRoot.className = "shell";
     pageRoot.innerHTML = coprinhoTemplate();
@@ -6517,6 +6546,31 @@ function render(){
   closeMobileMenu(false);
   window.scrollTo(0,0);
   pageRoot.focus({preventScroll:true});
+}
+
+
+function statisticsTemplate(){
+  return `
+    <article class="statistics-page">
+      <nav class="breadcrumb" aria-label="Caminho"><a href="#/">Início</a> / Estatísticas</nav>
+      <header class="statistics-intro">
+        <p class="page-kicker">Transparência e alcance</p>
+        <h1>Estatísticas de acesso</h1>
+        <p class="page-lead">Acompanhe como a comunidade utiliza o Onde Descartar?. Os dados são registrados pelo Umami, de forma agregada, a partir da ativação do monitoramento.</p>
+      </header>
+      <div class="statistics-info">
+        <p>O painel apresenta visualizações, visitantes, evolução dos acessos, páginas consultadas e outras informações disponíveis no Umami. A localização exibida, quando disponível, é aproximada.</p>
+        <p>Os números não incluem acessos anteriores à instalação do monitoramento. Bloqueadores de rastreamento também podem impedir alguns registros.</p>
+      </div>
+      <section aria-labelledby="statistics-panel-title" class="statistics-panel">
+        <div class="statistics-panel-head">
+          <h2 id="statistics-panel-title">Painel público</h2>
+          <a class="statistics-external-link" href="https://cloud.umami.is/share/hdXuxGfuo1S0vMDC" target="_blank" rel="noopener noreferrer">Abrir painel em outra aba <span aria-hidden="true">↗</span></a>
+        </div>
+        <iframe class="statistics-frame" src="https://cloud.umami.is/share/hdXuxGfuo1S0vMDC" title="Painel público de estatísticas de acesso do Onde Descartar?" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        <p class="statistics-help">Caso o painel não carregue nesta página, use o link “Abrir painel em outra aba”.</p>
+      </section>
+    </article>`;
 }
 
 function initConsultPage(query = new URLSearchParams()){
