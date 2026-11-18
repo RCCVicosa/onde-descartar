@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Painel público de acessos à ferramenta Onde Descartar?">
+<title>Estatísticas | Onde Descartar?</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#1D2924;background:#FFFEFA;line-height:1.6;color-scheme:light}
+*{box-sizing:border-box}body{margin:0}a{color:#1F4A3D}a:focus-visible,button:focus-visible{outline:3px solid #1F4A3D;outline-offset:3px}
+.skip{position:absolute;top:-80px;left:12px;background:#fff;padding:12px}.skip:focus{top:12px}
+header{background:#f7f5f0;border-bottom:1px solid #dad6cb}.container{max-width:1120px;margin:auto;padding:0 22px}
+nav{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.brand{font-weight:750;font-size:1.35rem;text-decoration:none}nav a:not(.brand){font-weight:600;text-decoration:none}
+main{padding:56px 0 96px}h1{font-size:clamp(2rem,4vw,3rem);line-height:1.12;margin:10px 0 20px;color:#1F4A3D}
+.kicker{font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;font-weight:750;color:#1F4A3D}
+.lead{max-width:760px;color:#4F5B55;font-size:1.07rem}
+.panel{border:1px solid #DAD6CB;border-radius:10px;background:white;padding:28px;margin-top:38px}
+iframe{width:100%;height:920px;border:0;display:block;background:#fff}
+h2{font-size:1.35rem}p{margin-top:10px}.note{color:#4F5B55;font-size:.9rem}
+.status{background:#f0f5ed;padding:12px 16px;border-left:4px solid #1F4A3D}
+footer{border-top:1px solid #dad6cb;padding:30px 0;background:white;color:#4F5B55}
+@media(max-width:600px){main{padding:34px 0 64px}.panel{padding:16px}iframe{height:1100px}}
+</style>
+<script defer src="../analytics-config.js"></script>
+</head>
+<body>
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
+<header><div class="container"><nav aria-label="Navegação">
+<a class="brand" href="../#/">Onde Descartar?</a>
+<a href="../#/">Início</a>
+<a href="../#/consultar">Consultar resíduos</a>
+<a href="../#/sobre">Sobre o projeto</a>
+</nav></div></header>
+<main id="conteudo" class="container">
+<p class="kicker">Transparência e impacto do projeto</p>
+<h1>Estatísticas de acesso</h1>
+<p class="lead">Acompanhe como a ferramenta Onde Descartar? é utilizada pela comunidade. Após a ativação da coleta, o painel público apresentará acessos, visitantes, conteúdos mais consultados e distribuição geográfica aproximada, conforme a disponibilidade dos dados.</p>
+<section class="panel" aria-labelledby="painel">
+<h2 id="painel">Painel público</h2>
+<div id="dashboard" role="status" aria-live="polite">
+<p class="status"><strong>Estatísticas ainda não disponíveis.</strong> O serviço de coleta de acessos precisa ser conectado antes de exibir dados reais. Nenhum número de visita foi estimado ou inventado.</p>
+</div>
+<p class="note">Os indicadores dependem do período selecionado, das configurações do serviço e de eventuais bloqueadores de rastreamento. As localizações são aproximadas; não identificam endereços individuais.</p>
+</section>
+</main>
+<footer><div class="container">Onde Descartar? — Projeto de extensão universitária em Viçosa/MG. <a href="../#/">Voltar à ferramenta</a></div></footer>
+<script>
+window.addEventListener('DOMContentLoaded',()=>{
+  const cfg=window.RCC_ANALYTICS||{};
+  const u=String(cfg.shareUrl||'').trim();
+  if(!u)return;
+  try{
+    const url=new URL(u);
+    if(url.protocol!=='https:'||!url.pathname.includes('/share/'))throw Error('Endereço de compartilhamento inválido');
+    const root=document.getElementById('dashboard');
+    root.replaceChildren();
+    const iframe=document.createElement('iframe');
+    iframe.src=url.href;
+    iframe.title='Painel público de estatísticas do Onde Descartar';
+    iframe.loading='lazy';
+    iframe.referrerPolicy='strict-origin-when-cross-origin';
+    root.append(iframe);
+    const p=document.createElement('p');p.className='note';
+    const a=document.createElement('a');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Abrir painel de estatísticas em nova aba';
+    p.append(a);root.append(p);
+  }catch(err){
+    document.getElementById('dashboard').textContent='O endereço configurado para o painel público precisa ser corrigido.';
+  }
+});
+</script>
+</body></html>
